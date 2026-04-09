@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Radius Map Tool</title>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: Arial; margin: 10px; }
+    #map { height: 600px; margin-top: 10px; }
+    textarea { width: 100%; height: 100px; }
+  </style>
+</head>
+<body>
+
+<h3>Google Radius Map Tool</h3>
+
+<textarea id="addresses" placeholder="Format: Title | Address OR just Address"></textarea><br><br>
+
+Radius (miles):
+<input type="number" id="radius" value="5"><br><br>
+
+Color:
+<input type="color" id="color" value="#3388ff"><br><br>
+
+Opacity (0–1):
+<input type="number" id="opacity" value="0.3" step="0.1"><br><br>
+
+<label>
+  <input type="checkbox" id="showLabel" checked>
+  Show label
+</label><br><br>
+
+<button onclick="plot()">Plot</button>
+<button onclick="window.print()">Print / Save PDF</button>
+
+<div id="map"></div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCXA06vt5XS3G9sdlzdiEH26EVcdbx2-as"></script>
+
+<script>
+let map;
+let geocoder;
+let objects = [];
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 33.45, lng: -112.07 },
+    zoom: 10
+  });
+
+  geocoder = new google.maps.Geocoder();
+}
+
+function clearMap() {
+  objects.forEach(obj => obj.setMap(null));
+  objects = [];
+}
+
+function plot() {
+  clearMap();
+
+  const lines = document.getElementById("addresses").value.split("\n").filter(l => l.trim());
+  const radiusMiles = parseFloat(document.getElementById("radius").value);
+  const color = document.getElementById("color").value;
+  const opacity = parseFloat(document.getElementById("opacity").value);
+  const showLabel = document.getElementById("showLabel").checked;
+
+  const bounds = new google.maps.LatLngBounds();
+
+  lines.forEach(line => {
+    let title = "";
+    let address = line;
+
+    if (line.includes("|")) {
+      [title, address] = line.split("|").map(s => s.trim());
+    }
+
+    geocoder.geocode({ address: address }, (results, status) => {
+      if (status === "OK") {
+        const loc = results[0].geometry.location;
+
+        const marker = new google.maps.Marker({
+          map,
+          position: loc,
+          title: title || address
+        });
+
+        if (showLabel) {
+          const infowindow = new google.maps.InfoWindow({
+            content: `<b>${title || address}</b><br>${address}`
+          });
+
+          marker.addListener("click", () => infowindow.open(map, marker));
+        }
+
+        const circle = new google.maps.Circle({
+          strokeColor: color,
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: color,
+          fillOpacity: opacity,
+          map,
+          center: loc,
+          radius: radiusMiles * 1609.34
+        });
+
+        objects.push(marker);
+        objects.push(circle);
+
+        bounds.extend(loc);
+        map.fitBounds(bounds);
+      } else {
+        console.log("Geocode failed:", address);
+      }
+    });
+  });
+}
+
+window.onload = initMap;
+</script>
+
+</body>
+</html>

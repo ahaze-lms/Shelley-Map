@@ -5,19 +5,39 @@
   <meta charset="utf-8" />
   <style>
     body { font-family: Arial; margin: 10px; }
-    #map { height: 600px; margin-top: 10px; }
 
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 6px; }
-    input { width: 100%; }
+    #map {
+      height: 600px;
+      margin-bottom: 15px;
+    }
 
-    button { margin: 5px; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+    }
+
+    input {
+      width: 100%;
+    }
+
+    button {
+      margin: 5px;
+    }
   </style>
 </head>
 <body>
 
 <h3>Google Radius Map Tool</h3>
 
+<!-- MAP FIRST -->
+<div id="map"></div>
+
+<!-- CONTROLS BELOW -->
 <table id="addressTable">
   <thead>
     <tr>
@@ -34,8 +54,6 @@
 <button onclick="addRow()">+ Add Row</button>
 <button onclick="plot()">Plot</button>
 <button onclick="window.print()">Print / Save PDF</button>
-
-<div id="map"></div>
 
 <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE"></script>
 
@@ -124,7 +142,7 @@ function plot() {
   });
 }
 
-// Add default row
+// Default row
 addRow("Home", "79th Ave & Orangewood Glendale AZ");
 
 window.onload = initMap;

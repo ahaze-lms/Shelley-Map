@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Shelley Map Tool</title>
+  <title>Shelley Radius Map Tool</title>
   <meta charset="utf-8" />
   <style>
     body { font-family: Arial; margin: 10px; }
@@ -28,16 +28,24 @@
     button {
       margin: 5px;
     }
+
+    .toggles {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
 
 <h3>Shelley Radius Map Tool</h3>
 
-<!-- MAP FIRST -->
 <div id="map"></div>
 
-<!-- CONTROLS BELOW -->
+<!-- TOGGLES -->
+<div class="toggles">
+  <label><input type="checkbox" id="toggleTitle" checked onchange="toggleColumn(0)"> Show Title</label>
+  <label><input type="checkbox" id="toggleRadius" checked onchange="toggleColumn(2)"> Show Radius</label>
+</div>
+
 <table id="addressTable">
   <thead>
     <tr>
@@ -55,7 +63,7 @@
 <button onclick="plot()">Plot</button>
 <button onclick="window.print()">Print / Save PDF</button>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCXA06vt5XS3G9sdlzdiEH26EVcdbx2-as"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE"></script>
 
 <script>
 let map;
@@ -140,6 +148,18 @@ function plot() {
       }
     });
   });
+}
+
+// 🔥 TOGGLE FUNCTION
+function toggleColumn(colIndex) {
+  const table = document.getElementById("addressTable");
+
+  for (let row of table.rows) {
+    if (row.cells[colIndex]) {
+      row.cells[colIndex].style.display =
+        row.cells[colIndex].style.display === "none" ? "" : "none";
+    }
+  }
 }
 
 // Default row

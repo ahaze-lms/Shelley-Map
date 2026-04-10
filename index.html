@@ -341,15 +341,23 @@
 
   <div class="toolbar">
     <div class="toolbar-left">
-      <span class="panel-label">Locations</span>
-      <label class="toggle-wrap">
-        <label class="toggle">
-          <input type="checkbox" id="toggleMapLabels" checked onchange="plot()">
-          <span class="toggle-track"></span>
-        </label>
-        Show labels
-      </label>
-    </div>
+  <span class="panel-label">Locations</span>
+
+  <label class="toggle-wrap">
+    <label class="toggle">
+      <input type="checkbox" id="toggleMapLabels" checked onchange="plot()">
+      <span class="toggle-track"></span>
+    </label>
+    Show labels
+  </label>
+
+  <!-- NEW: Label size controls -->
+  <div style="display:flex; align-items:center; gap:6px; margin-left:10px;">
+    <button onclick="changeLabelSize(-1)" style="padding:4px 8px; cursor:pointer;">−</button>
+    <span id="labelSizeDisplay" style="font-size:12px; color:#666;">12px</span>
+    <button onclick="changeLabelSize(1)" style="padding:4px 8px; cursor:pointer;">+</button>
+  </div>
+</div>
   </div>
 
   <div class="table-wrap">
@@ -394,6 +402,18 @@ let map;
 let geocoder;
 let objects = [];
 let labels = [];
+let labelFontSize = 12;
+
+  function changeLabelSize(delta) {
+  labelFontSize += delta;
+
+  if (labelFontSize < 8) labelFontSize = 8;
+  if (labelFontSize > 30) labelFontSize = 30;
+
+  document.getElementById("labelSizeDisplay").innerText = labelFontSize + "px";
+
+  plot();
+}
 
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
@@ -443,10 +463,18 @@ function plot() {
         const loc = results[0].geometry.location;
 
         const marker = new google.maps.Marker({
-          map,
-          position: loc,
-          title: title || address
-        });
+  map,
+  position: loc,
+  title: title || address,
+  icon: {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 4,              // 👈 adjust size (3–6 sweet spot)
+    fillColor: color,
+    fillOpacity: 1,
+    strokeColor: "#fff",
+    strokeWeight: 1
+  }
+});
 
         const infowindow = new google.maps.InfoWindow({
           content: `<b>${title || address}</b><br>${address}`
@@ -486,7 +514,7 @@ function plot() {
             label: {
               text: `${title || address} (${radius} mi)`,
               color: "#111",
-              fontSize: "12px",
+              fontSize: labelFontSize + "px",
               fontWeight: "600"
             }
           });

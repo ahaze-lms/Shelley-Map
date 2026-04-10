@@ -4,70 +4,388 @@
   <title>Shelley Radius Map Tool</title>
   <meta charset="utf-8" />
   <style>
-    body { font-family: Arial; margin: 10px; }
+    *, *::before, *::after { box-sizing: border-box; }
 
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f3;
+      color: #1a1a1a;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 14px 20px;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0;
+      color: #1a1a1a;
+      letter-spacing: -0.01em;
+    }
+
+    .header-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1D9E75;
+    }
+
+    /* ── Map ── */
     #map {
-      height: 600px;
-      margin-bottom: 15px;
+      height: 580px;
+      width: 100%;
+      display: block;
+    }
+
+    /* ── Panel below map ── */
+    .panel {
+      background: #fff;
+      border-top: 1px solid #e8e8e5;
+      padding: 18px 20px 22px;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .panel-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    /* Toggle */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle {
+      position: relative;
+      width: 32px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #d4d4d0;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle input:checked + .toggle-track {
+      background: #1D9E75;
+    }
+
+    .toggle-track::before {
+      content: "";
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      left: 2.5px;
+      top: 2.5px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle input:checked + .toggle-track::before {
+      transform: translateX(14px);
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      border: 1px solid #e8e8e5;
+      border-radius: 10px;
+      overflow: hidden;
     }
 
     table {
+      width: 100%;
       border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      padding: 9px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      background: #fafaf8;
+      border-bottom: 1px solid #e8e8e5;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    thead th:last-child {
+      width: 40px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f0f0ed;
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: #fafaf8;
+    }
+
+    tbody td {
+      padding: 7px 12px;
+      vertical-align: middle;
+    }
+
+    tbody td input[type="text"],
+    tbody td input[type="number"] {
       width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: #1a1a1a;
+      font-family: inherit;
+      padding: 2px 0;
     }
 
-    th, td {
-      border: 1px solid #ccc;
-      padding: 6px;
+    tbody td input[type="text"]::placeholder,
+    tbody td input[type="number"]::placeholder {
+      color: #bbb;
     }
 
-    input {
-      width: 100%;
+    tbody td input[type="text"]:focus,
+    tbody td input[type="number"]:focus {
+      border-bottom: 1px solid #c0c0bc;
     }
 
-    button {
-      margin: 5px;
+    tbody td input[type="number"] {
+      max-width: 64px;
     }
 
-    .toggles {
-      margin-bottom: 10px;
+    tbody td input[type="color"] {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid #e0e0dc;
+      padding: 2px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background: none;
+    }
+
+    tbody td input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    tbody td input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 50%;
+    }
+
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #bbb;
+      font-size: 17px;
+      line-height: 1;
+      padding: 3px 8px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+      font-family: inherit;
+    }
+
+    .del-btn:hover {
+      color: #c0392b;
+      background: #fdf0ef;
+    }
+
+    /* ── Bottom bar ── */
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .add-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: 1px solid #e0e0dc;
+      border-radius: 7px;
+      padding: 7px 13px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .add-btn:hover {
+      background: #f5f5f3;
+      color: #1a1a1a;
+      border-color: #c8c8c4;
+    }
+
+    .add-btn .plus {
+      font-size: 17px;
+      line-height: 1;
+      font-weight: 300;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-print {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1px solid #e0e0dc;
+      border-radius: 7px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .btn-print:hover {
+      background: #f5f5f3;
+    }
+
+    .btn-plot {
+      background: #1D9E75;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.01em;
+      transition: background 0.15s;
+    }
+
+    .btn-plot:hover {
+      background: #0F6E56;
+    }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: #fff; }
+      .header { border-bottom: 1px solid #ccc; }
+      .panel { border-top: 1px solid #ccc; }
+      .bottom-bar { display: none; }
     }
   </style>
 </head>
 <body>
 
-<h3>Shelley Radius Map Tool</h3>
+<div class="header">
+  <div class="header-dot"></div>
+  <h1>Shelley Radius Map Tool</h1>
+</div>
 
 <div id="map"></div>
 
+<div class="panel">
 
-<!-- TOGGLES -->
-<div class="toggles">
-  <!-- <label><input type="checkbox" checked onchange="toggleColumn(0)"> Show Title</label> -->
-  <!-- <label><input type="checkbox" checked onchange="toggleColumn(2)"> Show Radius</label> -->
-  
-  <label>
-    <input type="checkbox" id="toggleMapLabels" checked onchange="plot()">
-    Show Labels on Map
-  </label>
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <span class="panel-label">Locations</span>
+      <label class="toggle-wrap">
+        <label class="toggle">
+          <input type="checkbox" id="toggleMapLabels" checked onchange="plot()">
+          <span class="toggle-track"></span>
+        </label>
+        Show labels
+      </label>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="addressTable">
+      <thead>
+        <tr>
+          <th style="width:20%">Title</th>
+          <th>Address</th>
+          <th style="width:13%">Radius (mi)</th>
+          <th style="width:8%">Color</th>
+          <th style="width:44px"></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="add-btn" onclick="addRow()">
+      <span class="plus">+</span> Add row
+    </button>
+    <div class="action-btns">
+      <button class="btn-print" onclick="window.print()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="1" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="1" y="5.5" width="14" height="7" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="4" y="10" width="8" height="4" rx="0.5" fill="currentColor" opacity="0.25"/>
+          <circle cx="12.5" cy="8.8" r="0.9" fill="currentColor"/>
+        </svg>
+        Print / Save PDF
+      </button>
+      <button class="btn-plot" onclick="plot()">Plot map</button>
+    </div>
+  </div>
+
 </div>
-
-<table id="addressTable">
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Address</th>
-      <th>Radius (mi)</th>
-      <th>Color</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<button onclick="addRow()">+ Add Row</button>
-<button onclick="plot()">Plot</button>
-<button onclick="window.print()">Print / Save PDF</button>
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCXA06vt5XS3G9sdlzdiEH26EVcdbx2-as"></script>
 
@@ -85,26 +403,22 @@ function initMap() {
   geocoder = new google.maps.Geocoder();
 }
 
-function addRow(title="", address="", radius=5, color="#3388ff") {
+function addRow(title="", address="", radius=5, color="#1D9E75") {
   const tbody = document.querySelector("#addressTable tbody");
-
   const row = document.createElement("tr");
-
   row.innerHTML = `
-    <td><input value="${title}"></td>
-    <td><input value="${address}"></td>
-    <td><input type="number" value="${radius}"></td>
+    <td><input type="text" value="${title}" placeholder="Label…"></td>
+    <td><input type="text" value="${address}" placeholder="123 Main St, City, ST…"></td>
+    <td><input type="number" value="${radius}" min="0"></td>
     <td><input type="color" value="${color}"></td>
-    <td><button onclick="this.closest('tr').remove()">X</button></td>
+    <td style="text-align:center"><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td>
   `;
-
   tbody.appendChild(row);
 }
 
 function clearMap() {
   objects.forEach(obj => obj.setMap(null));
   labels.forEach(label => label.setMap(null));
-
   objects = [];
   labels = [];
 }
@@ -117,15 +431,14 @@ function plot() {
 
   rows.forEach(row => {
     const inputs = row.querySelectorAll("input");
-
-    const title = inputs[0].value;
+    const title  = inputs[0].value;
     const address = inputs[1].value;
-    const radius = parseFloat(inputs[2].value);
-    const color = inputs[3].value;
+    const radius  = parseFloat(inputs[2].value);
+    const color   = inputs[3].value;
 
     if (!address) return;
 
-    geocoder.geocode({ address: address }, (results, status) => {
+    geocoder.geocode({ address }, (results, status) => {
       if (status === "OK") {
         const loc = results[0].geometry.location;
 
@@ -156,29 +469,27 @@ function plot() {
         bounds.extend(loc);
         map.fitBounds(bounds);
 
-        // 🔥 LABEL + SMALL DOT
         if (document.getElementById("toggleMapLabels").checked) {
-         const label = new google.maps.Marker({
-  position: loc,
-  map: map,
-  zIndex: 1000,         
-  icon: {
-    path: google.maps.SymbolPath.CIRCLE,
-    scale: 4,
-    fillColor: color,
-    fillOpacity: 1,
-    strokeColor: "#fff",
-    strokeWeight: 1,
-    labelOrigin: new google.maps.Point(0, -18)
-  },
-  label: {
-    text: `${title || address} (${radius} mi)`,
-    color: "#000",
-    fontSize: "13px",
-    fontWeight: "bold"
-  }
+          const label = new google.maps.Marker({
+            position: loc,
+            map,
+            zIndex: 1000,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 4,
+              fillColor: color,
+              fillOpacity: 1,
+              strokeColor: "#fff",
+              strokeWeight: 1,
+              labelOrigin: new google.maps.Point(0, -18)
+            },
+            label: {
+              text: `${title || address} (${radius} mi)`,
+              color: "#111",
+              fontSize: "12px",
+              fontWeight: "600"
+            }
           });
-
           labels.push(label);
         }
       }
@@ -186,10 +497,8 @@ function plot() {
   });
 }
 
-// COLUMN TOGGLE
 function toggleColumn(colIndex) {
   const table = document.getElementById("addressTable");
-
   for (let row of table.rows) {
     if (row.cells[colIndex]) {
       row.cells[colIndex].style.display =
@@ -198,9 +507,7 @@ function toggleColumn(colIndex) {
   }
 }
 
-// Default row
 addRow("Here", "Phoenix AZ");
-
 window.onload = initMap;
 </script>
 

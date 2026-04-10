@@ -42,8 +42,9 @@
 
 <!-- TOGGLES -->
 <div class="toggles">
-  <label><input type="checkbox" id="toggleTitle" checked onchange="toggleColumn(0)"> Show Title</label>
-  <label><input type="checkbox" id="toggleRadius" checked onchange="toggleColumn(2)"> Show Radius</label>
+  <label><input type="checkbox" checked onchange="toggleColumn(0)"> Show Title</label>
+  <label><input type="checkbox" checked onchange="toggleColumn(2)"> Show Radius</label>
+  <label><input type="checkbox" id="toggleMapLabels" checked onchange="plot()"> Show Labels on Map</label>
 </div>
 
 <table id="addressTable">
@@ -69,6 +70,7 @@
 let map;
 let geocoder;
 let objects = [];
+let labels = [];
 
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
@@ -96,7 +98,10 @@ function addRow(title="", address="", radius=5, color="#3388ff") {
 
 function clearMap() {
   objects.forEach(obj => obj.setMap(null));
+  labels.forEach(label => label.setMap(null));
+
   objects = [];
+  labels = [];
 }
 
 function plot() {
@@ -145,12 +150,37 @@ function plot() {
         objects.push(marker, circle);
         bounds.extend(loc);
         map.fitBounds(bounds);
+
+        // 🔥 LABEL + SMALL DOT
+        if (document.getElementById("toggleMapLabels").checked) {
+          const label = new google.maps.Marker({
+            position: loc,
+            map: map,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 4,
+              fillColor: color,
+              fillOpacity: 1,
+              strokeColor: "#fff",
+              strokeWeight: 1,
+              labelOrigin: new google.maps.Point(0, -10)
+            },
+            label: {
+              text: `${title || address} (${radius} mi)`,
+              color: "#000",
+              fontSize: "12px",
+              fontWeight: "bold"
+            }
+          });
+
+          labels.push(label);
+        }
       }
     });
   });
 }
 
-// 🔥 TOGGLE FUNCTION
+// COLUMN TOGGLE
 function toggleColumn(colIndex) {
   const table = document.getElementById("addressTable");
 

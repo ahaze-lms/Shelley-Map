@@ -40,11 +40,16 @@
 
 <div id="map"></div>
 
+
 <!-- TOGGLES -->
 <div class="toggles">
-  <label><input type="checkbox" checked onchange="toggleColumn(0)"> Show Title</label>
-  <label><input type="checkbox" checked onchange="toggleColumn(2)"> Show Radius</label>
-  <label><input type="checkbox" id="toggleMapLabels" checked onchange="plot()"> Show Labels on Map</label>
+  <!-- <label><input type="checkbox" checked onchange="toggleColumn(0)"> Show Title</label> -->
+  <!-- <label><input type="checkbox" checked onchange="toggleColumn(2)"> Show Radius</label> -->
+  
+  <label>
+    <input type="checkbox" id="toggleMapLabels" checked onchange="plot()">
+    Show Labels on Map
+  </label>
 </div>
 
 <table id="addressTable">
@@ -153,24 +158,25 @@ function plot() {
 
         // 🔥 LABEL + SMALL DOT
         if (document.getElementById("toggleMapLabels").checked) {
-          const label = new google.maps.Marker({
-            position: loc,
-            map: map,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 4,
-              fillColor: color,
-              fillOpacity: 1,
-              strokeColor: "#fff",
-              strokeWeight: 1,
-              labelOrigin: new google.maps.Point(0, -10)
-            },
-            label: {
-              text: `${title || address} (${radius} mi)`,
-              color: "#000",
-              fontSize: "12px",
-              fontWeight: "bold"
-            }
+         const label = new google.maps.Marker({
+  position: loc,
+  map: map,
+  zIndex: 1000,         
+  icon: {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 4,
+    fillColor: color,
+    fillOpacity: 1,
+    strokeColor: "#fff",
+    strokeWeight: 1,
+    labelOrigin: new google.maps.Point(0, -18)
+  },
+  label: {
+    text: `${title || address} (${radius} mi)`,
+    color: "#000",
+    fontSize: "13px",
+    fontWeight: "bold"
+  }
           });
 
           labels.push(label);
